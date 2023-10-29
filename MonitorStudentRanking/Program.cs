@@ -7,7 +7,6 @@ namespace MonitorStudentRanking
 {
     internal class Program
     {
-
         static void Main(string[] args)
         {
             //var mapper = new ModelToTableMapper<Student>();
@@ -26,19 +25,26 @@ namespace MonitorStudentRanking
             }
         }
 
-        public static void RecordChanged(Object sender, RecordChangedEventArgs<StudentAchievements> args)
+        public static async void RecordChanged(Object sender, RecordChangedEventArgs<StudentAchievements> args)
         {
             var changedEntity = args.Entity;
             Console.WriteLine(args.ChangeType);
+            PostLatestSummary postSummary = new PostLatestSummary();
+            StudentAchievements achievement = new StudentAchievements()
+            {
+                StudentId = changedEntity.StudentId,
+                AchievementId = changedEntity.AchievementId,
+                AchievementCounter = changedEntity.AchievementCounter
+            };
 
             switch (args.ChangeType)
             {
                 case ChangeType.Insert:
-                    break;
-
-                case ChangeType.Update:
+                    int result = await postSummary.SendLatestSummary(achievement);
+                    Console.WriteLine($"Data Pushed: {result}");
                     break;
             }
+
         }
     }
 }
